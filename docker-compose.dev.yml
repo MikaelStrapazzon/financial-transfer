@@ -1,0 +1,27 @@
+services:
+  api-transfer:
+    image: webdevops/php-apache:8.3-alpine
+    container_name: api-transfer
+    tty: true
+    ports:
+      - "7001:7001"
+    working_dir: /app
+    volumes:
+      - ./api-transfer:/app
+    environment:
+      WEB_DOCUMENT_ROOT: /app/public
+    command: sh /app/containers/developer/initServeDev.sh
+    links:
+      - api-transfer-database
+
+  api-transfer-database:
+    image: mysql:8.4
+    container_name: database-api-transfer
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: api-transfer
+    volumes:
+      - /var/lib/api-transfer/mysql:/var/lib/mysql
