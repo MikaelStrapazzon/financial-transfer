@@ -10,6 +10,7 @@ use App\exceptions\InternalServerErrorException;
 use App\exceptions\NotFoundException;
 use App\exceptions\UnauthorizedTransferException;
 use App\external\http\AuthorizationApi;
+use App\services\email\SendEmailService;
 use App\services\user\UserCrudService;
 use Exception;
 use Illuminate\Validation\ValidationException;
@@ -20,6 +21,8 @@ class MakeTransferService
 
     private UserCrudService $userCrudService;
 
+    private SendEmailService $sendEmailService;
+
     private TransferRepository $transferRepository;
 
     private AuthorizationApi $authorizationApi;
@@ -28,6 +31,7 @@ class MakeTransferService
     {
         $this->transferCrudService = new TransferCrudService();
         $this->userCrudService = new UserCrudService();
+        $this->sendEmailService = new SendEmailService();
 
         $this->transferRepository = new TransferRepository();
 
@@ -61,7 +65,11 @@ class MakeTransferService
             throw new UnauthorizedTransferException();
         }
 
-        return $this->executeTransaction($value, $payer, $payee);
+        $transfer = $this->executeTransaction($value, $payer, $payee);
+
+        $this->sendEmailTransferExecuted($payer, $payee, $transfer);
+
+        return $transfer;
     }
 
     /**
@@ -112,5 +120,24 @@ class MakeTransferService
     private function authorizationTransferInAuthorizationApi(): bool
     {
         return $this->authorizationApi->authorizeTransfer() === true;
+    }
+
+    private function sendEmailTransferExecuted(User $payer, User $payee, Transfer $transfer): void
+    {
+        $this->sendEmailService->sendEmailToQueue(
+            $payer->email,
+            'Transfer completed successfully',
+            "Transfer of R$ {${$transfer->amount}}
+                successfully carried out to user {${$payee->name}}
+                on {${$transfer->transfer_date}}"
+        );
+
+        $this->sendEmailService->sendEmailToQueue(
+            $payee->email,
+            'Transfer completed successfully',
+            "value transfer R$ {${$transfer->amount}} received from
+                user {${$payer->name}}
+                on {${$transfer->transfer_date}}"
+        );
     }
 }
