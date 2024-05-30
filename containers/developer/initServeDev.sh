@@ -17,4 +17,7 @@ php artisan migrate
 # php artisan db:seed
 
 # Server up Laravel
-php artisan serve --host 0.0.0.0 --port=7001
+php artisan serve --host 0.0.0.0 --port=7001 &
+
+# Up consumer email send
+php artisan app:process-queue-email
