@@ -26,8 +26,8 @@ docker-compose -f ./docker-compose.dev.yml up
 POST /transfer
 
 {
-  "value": FLOAT,
-  "payer": INT,
-  "payee": INT
+  "value": "FLOAT",
+  "payer": "INT",
+  "payee": "INT"
 }
 ```
