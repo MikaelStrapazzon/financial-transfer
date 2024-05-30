@@ -4,6 +4,7 @@ namespace App\http;
 
 use App\exceptions\InternalServerErrorException;
 use App\Exceptions\NotFoundException;
+use App\exceptions\UnauthorizedTransferException;
 use App\http\responses\HttpResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +16,8 @@ class HttpExceptionHandler
     {
         if (
             $e instanceof NotFoundException ||
-            $e instanceof InternalServerErrorException
+            $e instanceof InternalServerErrorException ||
+            $e instanceof UnauthorizedTransferException
         ) {
             return HttpResponse::error(
                 $e->getMessage(),

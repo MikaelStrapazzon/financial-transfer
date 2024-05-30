@@ -4,6 +4,7 @@ namespace App\http\controllers;
 
 use App\exceptions\InternalServerErrorException;
 use App\exceptions\NotFoundException;
+use App\exceptions\UnauthorizedTransferException;
 use App\http\controllers\base\BaseController;
 use App\http\requests\transfer\NewTransferRequest;
 use App\http\responses\HttpResponse;
@@ -24,6 +25,7 @@ class TransferController extends BaseController
      * @throws NotFoundException
      * @throws ValidationException
      * @throws InternalServerErrorException
+     * @throws UnauthorizedTransferException
      */
     public function makeTransfer(NewTransferRequest $request): JsonResponse
     {

@@ -8,6 +8,8 @@ use App\Database\sql\entities\User;
 use App\database\sql\repositories\TransferRepository;
 use App\exceptions\InternalServerErrorException;
 use App\exceptions\NotFoundException;
+use App\exceptions\UnauthorizedTransferException;
+use App\external\http\AuthorizationApi;
 use App\services\user\UserCrudService;
 use Exception;
 use Illuminate\Validation\ValidationException;
@@ -20,12 +22,16 @@ class MakeTransferService
 
     private TransferRepository $transferRepository;
 
+    private AuthorizationApi $authorizationApi;
+
     public function __construct()
     {
         $this->transferCrudService = new TransferCrudService();
         $this->userCrudService = new UserCrudService();
 
         $this->transferRepository = new TransferRepository();
+
+        $this->authorizationApi = new AuthorizationApi();
     }
 
     /**
@@ -34,6 +40,7 @@ class MakeTransferService
      * @throws ValidationException
      * @throws InternalServerErrorException
      * @throws NotFoundException
+     * @throws UnauthorizedTransferException
      */
     public function makeTransfer(float $value, int $payerId, int $payeeId): Transfer
     {
@@ -49,6 +56,10 @@ class MakeTransferService
         $this->validTransferPayer($payer, $value);
 
         $payee = $this->userCrudService->findById($payeeId);
+
+        if (! $this->authorizationTransferInAuthorizationApi()) {
+            throw new UnauthorizedTransferException();
+        }
 
         return $this->executeTransaction($value, $payer, $payee);
     }
@@ -96,5 +107,10 @@ class MakeTransferService
         if ($payer->type !== UserType::INDIVIDUAL) {
             throw ValidationException::withMessages(['payee' => 'The selected payee must be an individual.']);
         }
+    }
+
+    private function authorizationTransferInAuthorizationApi(): bool
+    {
+        return $this->authorizationApi->authorizeTransfer() === true;
     }
 }
