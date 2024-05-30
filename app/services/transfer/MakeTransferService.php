@@ -124,20 +124,22 @@ class MakeTransferService
 
     private function sendEmailTransferExecuted(User $payer, User $payee, Transfer $transfer): void
     {
+        $transferDate = $transfer->transfer_date?->format('Y-m-d H:i:s');
+
         $this->sendEmailService->sendEmailToQueue(
             $payer->email,
             'Transfer completed successfully',
-            "Transfer of R$ {${$transfer->amount}}
-                successfully carried out to user {${$payee->name}}
-                on {${$transfer->transfer_date}}"
+            "Transfer of R$ $transfer->amount
+                successfully carried out to user $payee->name
+                on $transferDate"
         );
 
         $this->sendEmailService->sendEmailToQueue(
             $payee->email,
             'Transfer completed successfully',
-            "value transfer R$ {${$transfer->amount}} received from
-                user {${$payer->name}}
-                on {${$transfer->transfer_date}}"
+            "value transfer R$ $transfer->amount received from
+                user $payer->name
+                on $transferDate"
         );
     }
 }
