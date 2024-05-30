@@ -1,6 +1,6 @@
 <?php
 
-namespace App\external\producer;
+namespace App\broker\producer;
 
 use Exception;
 use Illuminate\Support\Facades\Redis;

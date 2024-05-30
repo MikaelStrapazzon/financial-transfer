@@ -2,7 +2,7 @@
 
 namespace App\services\email;
 
-use App\external\producer\QueueEmailProducer;
+use App\broker\producer\QueueEmailProducer;
 
 class SendEmailService
 {
