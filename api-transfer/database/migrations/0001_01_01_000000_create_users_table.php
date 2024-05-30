@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email', 255)->unique();
             $table->string('password', 64);
             $table->string('cpf_cnpj', 14)->unique();
+            $table->decimal('balance', 10);
             $table->enum('type', ['individual', 'store']);
         });
     }
