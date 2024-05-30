@@ -7,7 +7,7 @@ services:
       - "7001:7001"
     working_dir: /app
     volumes:
-      - ./:/app
+      - ../../:/app
     environment:
       WEB_DOCUMENT_ROOT: /app/public
     command: sh /app/containers/developer/initServeDev.sh
